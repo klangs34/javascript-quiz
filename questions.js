@@ -1,4 +1,3 @@
-var startBtn = document.getElementById("start");
 var questionEl = document.getElementById("question");
 var answersEl = document.getElementById('answers');
 var time = document.getElementById('time');
@@ -28,26 +27,32 @@ var setTimer;
 function reset() {
   questionEl.textContent = "";
   answersEl.textContent = "";
-  startBtn.setAttribute('class', 'hide');
 }
 
 function init() {
   questionEl.textContent = `Lorem ipsum dolor sit amet consectetur adipisicing elit. 
   Quae voluptatem ut, quos minima doloremque explicabo obcaecati voluptas placeat. Molestias, exercitationem!`
   answersEl.textContent = "";
-  startBtn.setAttribute('class', 'show');
-  var goBackBtn = document.getElementById('go-back');
-  goBackBtn.setAttribute('style', '');
-  goBackBtn.setAttribute('class', 'hide');
-  var clearStorageBtn = document.getElementById('clear-storage');
-  clearStorageBtn.setAttribute('class', 'hide');
+
+  //add start button
+  var startBtn = document.createElement('button');
+  startBtn.textContent = 'Start Quiz';
+  startBtn.setAttribute('class', 'btn rounded-pill btn-info d-block m-3');
+  startBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    startBtn.setAttribute('class', 'hide');
+    startTimer();
+    reset();
+    nextQuestion();
+  })
+  answersEl.append(startBtn);
 }
 
 function startTimer() {
-  setTimer = setInterval(function(){
+  setTimer = setInterval(function () {
     time.textContent = totalTime;
     timeRemaining = totalTime--;
-    if(totalTime <= 0) {
+    if (totalTime <= 0) {
       clearInterval(setTimer);
     }
   }, 1000)
@@ -62,31 +67,48 @@ function formatMinutes() {
 }
 
 function displayClearStorage() {
-  var clearStorageBtn = document.createElement('button');
-  clearStorageBtn.textContent = "Clear Scores";
-  clearStorageBtn.setAttribute('id', 'clear-storage');
-  clearStorageBtn.addEventListener('click', function(){
-    localStorage.clear();
-    answersEl.textContent = "";
-  });
-  var containerDiv = document.querySelector('.container');
-  containerDiv.append(clearStorageBtn);
+
+  if (!document.getElementById('clear-storage')) {
+    var clearStorageBtn = document.createElement('button');
+    clearStorageBtn.textContent = "Clear Scores";
+    clearStorageBtn.setAttribute('id', 'clear-storage');
+    clearStorageBtn.addEventListener('click', function () {
+      localStorage.clear();
+      scores = [];
+      answersEl.textContent = "";
+    });
+    var containerDiv = document.querySelector('.container');
+    containerDiv.append(clearStorageBtn);
+  } else {
+    var showClearStorageBtn = document.getElementById('clear-storage');
+    showClearStorageBtn.setAttribute('style', 'display: inline;');
+  }
 }
 
 function displayGoBack() {
-  var goBackBtn = document.createElement('button');
-  goBackBtn.textContent = "Go Back";
-  goBackBtn.setAttribute('style', 'display: inline;');
-  goBackBtn.setAttribute('id', 'go-back');
-  goBackBtn.addEventListener('click', function(){
-    //start game over
-    index = 1;
-    time.textContent = 0;
-    init();
-    //window.location.href = 'index.html';
-  });
-  var containerDiv = document.querySelector('.container');
-  containerDiv.append(goBackBtn);
+
+  if (!document.getElementById('go-back')) {
+    var goBackBtn = document.createElement('button');
+    goBackBtn.textContent = "Go Back";
+    goBackBtn.setAttribute('style', 'display: inline;');
+    goBackBtn.setAttribute('id', 'go-back');
+    goBackBtn.addEventListener('click', function () {
+      //start game over
+      index = 1;
+      time.textContent = 0;
+      //hide go back and clear storage button
+      goBackBtn.setAttribute('style', 'display: none;');
+      //goBackBtn.setAttribute('class', 'hide');
+      var clearStorageBtn = document.getElementById('clear-storage');
+      clearStorageBtn.setAttribute('style', 'display: none;');
+      init();
+    });
+    var containerDiv = document.querySelector('.container');
+    containerDiv.append(goBackBtn);
+  } else {
+    var showGoBackBtn = document.getElementById('go-back');
+    showGoBackBtn.setAttribute('style', 'display: inline;');
+  }
 }
 
 function showHighScores() {
@@ -132,12 +154,12 @@ function displayScore() {
   var submitBtn = document.createElement('button');
   submitBtn.textContent = 'Submit';
   //add event listener to button
-  submitBtn.addEventListener('click', function(){
+  submitBtn.addEventListener('click', function () {
     //save score and initials to local storage
     var userScore = document.getElementById('score');
     var userInitials = document.getElementById('initials')
     //push score to score array
-    if(localStorage.getItem('score')) {
+    if (localStorage.getItem('score')) {
       //pare the string
       scores = JSON.parse(localStorage.getItem('score'));
       scores.push({
@@ -174,11 +196,14 @@ function calculateScore() {
   var penalty = countFalse * 15;
   yourScore = (countTrue / questions.length) * 100 + (timeRemaining - penalty);
 
+  //reset isCorrect array
+  isCorrect = [];
+
   displayScore();
 }
 
 function displalyChoices() {
-  for(var i=0; i<questions[index - 1].choices.length; i++) {
+  for (var i = 0; i < questions[index - 1].choices.length; i++) {
     //create button element with id and data-index attributes
     var buttonEl = document.createElement("button");
     buttonEl.setAttribute('data-index', i);
@@ -186,7 +211,7 @@ function displalyChoices() {
     buttonEl.textContent = questions[index - 1].choices[i];
 
     //add event listener to button with callback that checks the selection to the answer
-    buttonEl.addEventListener('click', function(e){
+    buttonEl.addEventListener('click', function (e) {
       e.preventDefault();
       var id = e.target.getAttribute('data-index');
       //record answer as right or wrong
@@ -204,15 +229,15 @@ function nextQuestion() {
 }
 
 function recordAnswer(id) {
-  if(questions[index - 1].answer === questions[index - 1].choices[id]) {
-      console.log("correct answer");
-      isCorrect.push(true);
-    } else {
-      console.log("wrong answer");
-      isCorrect.push(false);
-    }
+  if (questions[index - 1].answer === questions[index - 1].choices[id]) {
+    console.log("correct answer");
+    isCorrect.push(true);
+  } else {
+    console.log("wrong answer");
+    isCorrect.push(false);
+  }
   //increment the index to have the game move on to the next question
-  if(index < questions.length) {
+  if (index < questions.length) {
     index++;
     reset();
     nextQuestion();
@@ -226,11 +251,5 @@ function recordAnswer(id) {
   }
 }
 
-startBtn.addEventListener("click", function(e){
-  e.preventDefault();
-  startTimer();
-  reset();
-  nextQuestion();
-})
-
+init();
 
