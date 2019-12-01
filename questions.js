@@ -1,12 +1,30 @@
 var questionEl = document.getElementById("question");
 var answersEl = document.getElementById('answers');
+var headerEl = document.getElementById('header');
 var time = document.getElementById('time');
+var highScoresEl = document.getElementById('high-scores');
+var rightWrongEl = document.getElementById('right-wrong');
 
 var questions = [
   {
     title: "Commonly used data types DO NOT include:",
     choices: ["strings", "booleans", "alerts", "numbers"],
     answer: "alerts"
+  },
+  {
+    title: "The condition in an if / else statement is enclosed within ____.",
+    choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
+    answer: "parentheses"
+  },
+  {
+    title: "The condition in an if / else statement is enclosed within ____.",
+    choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
+    answer: "parentheses"
+  },
+  {
+    title: "The condition in an if / else statement is enclosed within ____.",
+    choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
+    answer: "parentheses"
   },
   {
     title: "The condition in an if / else statement is enclosed within ____.",
@@ -26,13 +44,18 @@ var setTimer;
 
 function reset() {
   questionEl.textContent = "";
-  answersEl.textContent = "";
+  if (answersEl) {
+    answersEl.textContent = "";
+  }
 }
 
 function init() {
   questionEl.textContent = `Lorem ipsum dolor sit amet consectetur adipisicing elit. 
   Quae voluptatem ut, quos minima doloremque explicabo obcaecati voluptas placeat. Molestias, exercitationem!`
-  answersEl.textContent = "";
+
+  if (answersEl) {
+    answersEl.textContent = "";
+  }
 
   //add start button
   var startBtn = document.createElement('button');
@@ -45,15 +68,27 @@ function init() {
     reset();
     nextQuestion();
   })
-  answersEl.append(startBtn);
+  headerEl.append(startBtn);
+}
+
+function endGame() {
+  if (isCorrect.length > 0) {
+    answersEl.textContent = "";
+    calculateScore();
+  } else {
+    answersEl.textContent = "Time's up!  No Score Calculated";
+  }
 }
 
 function startTimer() {
+  totalTime = 15 * questions.length;
   setTimer = setInterval(function () {
     time.textContent = totalTime;
     timeRemaining = totalTime--;
-    if (totalTime <= 0) {
+    if (totalTime === 0) {
+      time.textContent = 0;
       clearInterval(setTimer);
+      endGame();
     }
   }, 1000)
 }
@@ -72,6 +107,7 @@ function displayClearStorage() {
     var clearStorageBtn = document.createElement('button');
     clearStorageBtn.textContent = "Clear Scores";
     clearStorageBtn.setAttribute('id', 'clear-storage');
+    clearStorageBtn.setAttribute('class', 'btn rounded-pill btn-info m-3')
     clearStorageBtn.addEventListener('click', function () {
       localStorage.clear();
       scores = [];
@@ -91,6 +127,7 @@ function displayGoBack() {
     var goBackBtn = document.createElement('button');
     goBackBtn.textContent = "Go Back";
     goBackBtn.setAttribute('style', 'display: inline;');
+    goBackBtn.setAttribute('class', 'btn rounded-pill btn-info m-3');
     goBackBtn.setAttribute('id', 'go-back');
     goBackBtn.addEventListener('click', function () {
       //start game over
@@ -115,16 +152,19 @@ function showHighScores() {
   reset();
   var highScores = localStorage.getItem('score');
 
-  questionEl.textContent = "High Scores"
+  questionEl.textContent = "High Scores";
+  headerEl.textContent = "";
 
   highScores = JSON.parse(highScores);
 
-  highScores.forEach((val, index) => {
-    var li = document.createElement('li');
-    li.setAttribute('key', index);
-    li.textContent = `${index + 1}.)  ${val.user} - ${val.score}`;
-    answersEl.appendChild(li);
-  })
+  if (highScores) {
+    highScores.forEach((val, index) => {
+      var li = document.createElement('li');
+      li.setAttribute('key', index);
+      li.textContent = `${index + 1}.)  ${val.user} - ${val.score}`;
+      answersEl.appendChild(li);
+    })
+  }
 
   //display go back button and clear scores button
   displayGoBack();
@@ -153,6 +193,7 @@ function displayScore() {
   //create submit button
   var submitBtn = document.createElement('button');
   submitBtn.textContent = 'Submit';
+  submitBtn.setAttribute('class', 'btn rounded-pill btn-info d-block m-3');
   //add event listener to button
   submitBtn.addEventListener('click', function () {
     //save score and initials to local storage
@@ -208,6 +249,7 @@ function displalyChoices() {
     var buttonEl = document.createElement("button");
     buttonEl.setAttribute('data-index', i);
     buttonEl.setAttribute('id', 'btn-style');
+    buttonEl.setAttribute('class', 'btn rounded-pill btn-info d-block m-3');
     buttonEl.textContent = questions[index - 1].choices[i];
 
     //add event listener to button with callback that checks the selection to the answer
@@ -222,6 +264,8 @@ function displalyChoices() {
 }
 
 function nextQuestion() {
+  //clear answer response
+  rightWrongEl.textContent = "";
   //initialize game by displaying question and answer options
   questionEl.textContent = questions[index - 1].title;
   //set array for question answers
@@ -230,26 +274,40 @@ function nextQuestion() {
 
 function recordAnswer(id) {
   if (questions[index - 1].answer === questions[index - 1].choices[id]) {
-    console.log("correct answer");
+    //console.log("correct answer");
     isCorrect.push(true);
+    rightWrongEl.textContent = "Correct Answer!";
   } else {
-    console.log("wrong answer");
+    //console.log("wrong answer");
+    rightWrongEl.textContent = "Wrong Answer!";
     isCorrect.push(false);
   }
   //increment the index to have the game move on to the next question
   if (index < questions.length) {
     index++;
-    reset();
-    nextQuestion();
+    //provide 8/10ths of a second to see the answer response before moving on
+    setTimeout(function () {
+      reset();
+      nextQuestion();
+    }, 800)
   } else {
-    //clear timer
-    clearInterval(setTimer);
-    //initilize screen
-    reset();
-    //display score
-    calculateScore();
+    //provide 8/10ths of a second to see the answer response before moving on
+    setTimeout(function () {
+      //clear answer response
+      rightWrongEl.textContent = "";
+      //clear timer
+      clearInterval(setTimer);
+      //initilize screen
+      reset();
+      //display score
+      calculateScore();
+    }, 800)
   }
 }
+
+highScoresEl.addEventListener('click', function () {
+  showHighScores();
+})
 
 init();
 
