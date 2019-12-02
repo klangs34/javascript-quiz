@@ -17,14 +17,14 @@ var questions = [
     answer: "parentheses"
   },
   {
-    title: "The condition in an if / else statement is enclosed within ____.",
-    choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
-    answer: "parentheses"
+    title: "What is the javascript DOM acronym?",
+    choices: ["Document Object Model", "Department of Management", "Dominate Open Maps", "Devlopement of Models"],
+    answer: "Document Object Model"
   },
   {
-    title: "The condition in an if / else statement is enclosed within ____.",
-    choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
-    answer: "parentheses"
+    title: "What is the ES2015 way to declare a variable that can be reassigned?",
+    choices: ["var", "const", "let", "declare"],
+    answer: "let"
   },
   {
     title: "The condition in an if / else statement is enclosed within ____.",
@@ -50,8 +50,8 @@ function reset() {
 }
 
 function init() {
-  questionEl.textContent = `Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-  Quae voluptatem ut, quos minima doloremque explicabo obcaecati voluptas placeat. Molestias, exercitationem!`
+  questionEl.textContent = `This quiz will test your javascript skills.  The speed in which you can answer these questions correctly will impact your overall score! 
+  You will be asked 5 challenging questions that you will need to answer correctly within the alotted time.  Good Luck!`
 
   if (answersEl) {
     answersEl.textContent = "";
@@ -93,12 +93,8 @@ function startTimer() {
   }, 1000)
 }
 
-function formatMinutes() {
-  minutes = Math.floor(totalTime / 60);
-
-  if (minutes < 10) {
-    minutes = "0" + minutes;
-  }
+function enforcePenalty() {
+  totalTime = timeRemaining - 15;
 }
 
 function displayClearStorage() {
@@ -152,17 +148,21 @@ function showHighScores() {
   reset();
   var highScores = localStorage.getItem('score');
 
-  questionEl.textContent = "High Scores";
+  questionEl.textContent = "View High Scores";
   headerEl.textContent = "";
 
   highScores = JSON.parse(highScores);
+  highScores.sort(function (a, b) {
+    return b.score - a.score;
+  });
 
   if (highScores) {
     highScores.forEach((val, index) => {
-      var li = document.createElement('li');
-      li.setAttribute('key', index);
-      li.textContent = `${index + 1}.)  ${val.user} - ${val.score}`;
-      answersEl.appendChild(li);
+      console.log(val)
+      var div = document.createElement('div');
+      div.setAttribute('key', index);
+      div.textContent = `${index + 1}.)  ${val.user} - ${val.score}`;
+      answersEl.appendChild(div);
     })
   }
 
@@ -223,22 +223,9 @@ function displayScore() {
 }
 
 function calculateScore() {
-  var countFalse = 0;
-  var countTrue = 0;
-  //determine the number of wrong entries
-  isCorrect.forEach(val => {
-    if (val === false) {
-      countFalse++;
-    } else {
-      countTrue++;
-    }
-  })
 
-  var penalty = countFalse * 15;
-  yourScore = (countTrue / questions.length) * 100 + (timeRemaining - penalty);
-
-  //reset isCorrect array
-  isCorrect = [];
+  //yourScore = (countTrue / questions.length) * 100 + (timeRemaining - penalty);
+  yourScore = timeRemaining;
 
   displayScore();
 }
@@ -281,6 +268,7 @@ function recordAnswer(id) {
     //console.log("wrong answer");
     rightWrongEl.textContent = "Wrong Answer!";
     isCorrect.push(false);
+    enforcePenalty();
   }
   //increment the index to have the game move on to the next question
   if (index < questions.length) {
