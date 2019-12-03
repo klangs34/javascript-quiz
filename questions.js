@@ -27,9 +27,9 @@ var questions = [
     answer: "let"
   },
   {
-    title: "The condition in an if / else statement is enclosed within ____.",
-    choices: ["quotes", "curly brackets", "parentheses", "square brackets"],
-    answer: "parentheses"
+    title: "Javascript supports native object creation",
+    choices: ["true", "false"],
+    answer: "false"
   }
 ];
 
@@ -152,9 +152,12 @@ function showHighScores() {
   headerEl.textContent = "";
 
   highScores = JSON.parse(highScores);
-  highScores.sort(function (a, b) {
-    return b.score - a.score;
-  });
+
+  if(highScores) {
+    highScores.sort(function (a, b) {
+      return b.score - a.score;
+    });
+  }
 
   if (highScores) {
     highScores.forEach((val, index) => {
