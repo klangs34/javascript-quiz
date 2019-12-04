@@ -197,29 +197,32 @@ function displayScore() {
   var submitBtn = document.createElement('button');
   submitBtn.textContent = 'Submit';
   submitBtn.setAttribute('class', 'btn rounded-pill btn-info d-block m-3');
+  
   //add event listener to button
   submitBtn.addEventListener('click', function () {
-    //save score and initials to local storage
-    var userScore = document.getElementById('score');
-    var userInitials = document.getElementById('initials')
-    //push score to score array
-    if (localStorage.getItem('score')) {
-      //pare the string
-      scores = JSON.parse(localStorage.getItem('score'));
-      scores.push({
-        user: userInitials.value,
-        score: userScore.textContent
-      })
-    } else {
-      scores.push({
-        user: userInitials.value,
-        score: userScore.textContent
-      });
-    }
-    localStorage.setItem('score', JSON.stringify(scores));
-    //show high score(s)
-    showHighScores();
 
+    if(inputTag.value !== "") {
+      //save score and initials to local storage
+      var userScore = document.getElementById('score');
+      var userInitials = document.getElementById('initials')
+      //push score to score array
+      if (localStorage.getItem('score')) {
+        //pare the string
+        scores = JSON.parse(localStorage.getItem('score'));
+        scores.push({
+          user: userInitials.value,
+          score: userScore.textContent
+        })
+      } else {
+        scores.push({
+          user: userInitials.value,
+          score: userScore.textContent
+        });
+      }
+      localStorage.setItem('score', JSON.stringify(scores));
+      //show high score(s)
+      showHighScores();
+    }
   })
   answersEl.appendChild(submitBtn);
 
