@@ -81,7 +81,7 @@ function endGame() {
 }
 
 function startTimer() {
-  totalTime = 15 * questions.length;
+  time.textContent = totalTime;
   setTimer = setInterval(function () {
     time.textContent = totalTime;
     timeRemaining = totalTime--;
