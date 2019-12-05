@@ -57,6 +57,9 @@ function init() {
     answersEl.textContent = "";
   }
 
+  totalTime = 15 * questions.length;
+  timeRemaining = 0;
+
   //add start button
   var startBtn = document.createElement('button');
   startBtn.textContent = 'Start Quiz';
@@ -66,7 +69,13 @@ function init() {
     startBtn.setAttribute('class', 'hide');
     startTimer();
     reset();
-    nextQuestion();
+
+    //create a slight pause before running the next function to prevent
+    //the user from answering too quickly causing a negative timer
+    setTimeout(function(){
+      nextQuestion();
+    }, 800)
+    
   })
   headerEl.append(startBtn);
 }
@@ -81,7 +90,6 @@ function endGame() {
 }
 
 function startTimer() {
-  time.textContent = totalTime;
   setTimer = setInterval(function () {
     time.textContent = totalTime;
     timeRemaining = totalTime--;
@@ -94,7 +102,9 @@ function startTimer() {
 }
 
 function enforcePenalty() {
-  totalTime = timeRemaining - 15;
+  if(totalTime > 15){
+    totalTime = timeRemaining - 15;
+  }
 }
 
 function displayClearStorage() {
@@ -257,12 +267,12 @@ function displalyChoices() {
 }
 
 function nextQuestion() {
-  //clear answer response
-  rightWrongEl.textContent = "";
-  //initialize game by displaying question and answer options
-  questionEl.textContent = questions[index - 1].title;
-  //set array for question answers
-  displalyChoices();
+    //clear answer response
+    rightWrongEl.textContent = "";
+    //initialize game by displaying question and answer options
+    questionEl.textContent = questions[index - 1].title;
+    //set array for question answers
+    displalyChoices();
 }
 
 function recordAnswer(id) {
